@@ -33,12 +33,17 @@ pub const OP_REPLY_BIT: u32 = 0x80;
 /// accidentally write over a real partition table.
 pub const RAW_DISK_TYPE_GUID: [u8; 16] = [0xFF; 16];
 
-/// Find the first partition, on any scanned disk, whose GPT type GUID
-/// matches `payload[0..2]` (16 bytes packed as two u64, little-endian
-/// halves of the raw on-disk GUID bytes -- see `pack_guid`/`unpack_guid`).
+/// Find the `index`-th partition (0-based, in scan order across every
+/// disk this service found -- not necessarily disk-then-slot sorted,
+/// but stable for the lifetime of this boot unless mkgpt/add_partition
+/// change something) whose GPT type GUID matches `payload[0..2]` (16
+/// bytes packed as two u64, little-endian halves of the raw on-disk
+/// GUID bytes -- see `pack_guid`/`unpack_guid`). `index`=0 is "the
+/// first match", same as this op's original single-disk behavior --
+/// existing callers that never set payload[2] keep working unchanged.
 ///
-///   request: payload[0..2] = type_guid (16 bytes)
-///   reply:   payload[0]=status (E_NOTFOUND if no match on any disk),
+///   request: payload[0..2] = type_guid (16 bytes), payload[2] = index
+///   reply:   payload[0]=status (E_NOTFOUND if fewer than index+1 matches),
 ///            payload[1]=slot_id (the block-abi SLOT_ID_BASE+N to read/write),
 ///            payload[2]=starting_lba, payload[3]=size_lba (512-byte sectors)
 pub const OP_FIND_PARTITION: u32 = 0x20;
