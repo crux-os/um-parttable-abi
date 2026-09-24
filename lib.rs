@@ -73,10 +73,6 @@ pub const OP_MKGPT: u32 = 0x21;
 pub const OP_ADD_PARTITION: u32 = 0x22;
 
 // ── status codes (negative on error, POSIX errno) ───────────────────────
-pub const E_OK:       i64 = 0;
-pub const E_NOTFOUND: i64 = -2;
-pub const E_IO:       i64 = -5;
-pub const E_NOSPC:    i64 = -28;
 
 // ── GUID packing ─────────────────────────────────────────────────────────
 
@@ -97,3 +93,10 @@ pub fn unpack_guid(lo: u64, hi: u64) -> [u8; 16] {
     out[8..16].copy_from_slice(&hi.to_le_bytes());
     out
 }
+
+// ── status codes ────────────────────────────────────────────────────────
+//
+// Reply status (payload[0]) is a system status from the error registry
+// (zigbone_abi::errors): generic errors where they fit, the `parttable`
+// facility for partition-table conditions.
+pub use zigbone_abi::errors::{Error, Status, parttable as errors};

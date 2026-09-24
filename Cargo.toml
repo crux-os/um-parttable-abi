@@ -9,3 +9,6 @@ description = "Crux OS partition-table service IPC protocol -- shared between um
 [lib]
 name = "um_parttable_abi"
 path = "lib.rs"
+
+[dependencies]
+zigbone-abi = { git = "https://github.com/crux-os/zigbone-abi.git" }
