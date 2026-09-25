@@ -72,6 +72,15 @@ pub const OP_MKGPT: u32 = 0x21;
 ///            payload[1]=starting_lba, payload[2]=size_lba assigned
 pub const OP_ADD_PARTITION: u32 = 0x22;
 
+/// Hot plug: the device-set generation (`SYS_DEVICES_WAIT`) whose disks
+/// the partition list already reflects. A client that saw the device set
+/// change to generation G waits until this reaches G before looking for
+/// partitions, so it never sees the list from before the change.
+///
+///   request: (none)
+///   reply:   payload[0]=status, payload[1]=generation
+pub const OP_GENERATION: u32 = 0x23;
+
 // ── status codes (negative on error, POSIX errno) ───────────────────────
 
 // ── GUID packing ─────────────────────────────────────────────────────────
