@@ -81,6 +81,23 @@ pub const OP_ADD_PARTITION: u32 = 0x22;
 ///   reply:   payload[0]=status, payload[1]=generation
 pub const OP_GENERATION: u32 = 0x23;
 
+/// The `index`-th partition of any type (0-based, across every disk):
+/// for clients that look at what is inside (um-vfs probes each one for a
+/// file system it can mount).
+///
+///   request: payload[0] = index
+///   reply:   payload[0]=status (ENOENT past the last one),
+///            payload[1]=slot_id, payload[2]=starting_lba,
+///            payload[3]=size_lba, payload[4..6]=type GUID (pack_guid)
+pub const OP_PARTITION_AT: u32 = 0x24;
+
+/// Type reported for a file system spanning a whole disk without a
+/// partition table (most USB flash drives: FAT32, exFAT): the GPT
+/// "Microsoft basic data" type.
+pub const WHOLE_DISK_FS_TYPE_GUID: [u8; 16] = [
+    0xA2, 0xA0, 0xD0, 0xEB, 0xE5, 0xB9, 0x33, 0x44, 0x87, 0xC0, 0x68, 0xB6, 0xB7, 0x26, 0x99, 0xC7,
+];
+
 // ── status codes (negative on error, POSIX errno) ───────────────────────
 
 // ── GUID packing ─────────────────────────────────────────────────────────
