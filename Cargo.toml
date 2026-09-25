@@ -4,7 +4,7 @@ version     = "0.1.0"
 edition      = "2024"
 rust-version = "1.92"
 license     = "Apache-2.0"
-description = "Crux OS partition-table service IPC protocol -- shared between um-parttable and clients that need to find their own partition (e.g. um-cfs)."
+description = "Crux OS partition-table service: protocol and client (finding partitions, partitioning a disk through a handle opened for writing)."
 
 [lib]
 name = "um_parttable_abi"
@@ -12,3 +12,4 @@ path = "lib.rs"
 
 [dependencies]
 zigbone-abi = { git = "https://github.com/crux-os/zigbone-abi.git" }
+runtime     = { git = "https://github.com/crux-os/rustspace.git", package = "runtime" }
