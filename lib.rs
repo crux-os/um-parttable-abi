@@ -27,7 +27,7 @@
 extern crate alloc;
 
 use alloc::vec::Vec;
-use runtime::channel::{self, Channel};
+use runtime::channel::{self, Channel, Xfer};
 use runtime::devices::{Access, Device};
 use runtime::syscall::Errno;
 use zigbone_abi::ipc::Message;
@@ -176,8 +176,7 @@ impl PartTable {
         payload[0] = disk.handle();
         let mut m = Message::empty(op);
         m.payload = payload;
-        self.0.send_handle_keep(&m, 0)?;
-        let r = self.0.recv()?;
+        let r = self.0.call_with(&m, Xfer::Keep(0))?;
         let status = r.payload[0] as i64;
         if status < 0 {
             Err(status)
