@@ -159,18 +159,31 @@ impl PartTable {
         m.payload = payload;
         let r = self.0.call(&m)?;
         let status = r.payload[0] as i64;
-        if status < 0 { Err(status) } else { Ok(r.payload) }
+        if status < 0 {
+            Err(status)
+        } else {
+            Ok(r.payload)
+        }
     }
 
     /// Sends `disk` along (a duplicate: the caller keeps it).
-    fn call_with_disk(&self, op: u32, disk: &Device, mut payload: [u64; 6]) -> Result<[u64; 6], Errno> {
-        payload[0] = disk.handle() as u64;
+    fn call_with_disk(
+        &self,
+        op: u32,
+        disk: &Device,
+        mut payload: [u64; 6],
+    ) -> Result<[u64; 6], Errno> {
+        payload[0] = disk.handle();
         let mut m = Message::empty(op);
         m.payload = payload;
         self.0.send_handle_keep(&m, 0)?;
         let r = self.0.recv()?;
         let status = r.payload[0] as i64;
-        if status < 0 { Err(status) } else { Ok(r.payload) }
+        if status < 0 {
+            Err(status)
+        } else {
+            Ok(r.payload)
+        }
     }
 
     /// The device-set generation the partition list reflects.
@@ -181,7 +194,12 @@ impl PartTable {
     /// The `index`-th partition of any type (ENOENT past the last one).
     pub fn partition_at(&self, index: u64) -> Result<Partition, Errno> {
         let p = self.call(OP_PARTITION_AT, [index, 0, 0, 0, 0, 0])?;
-        Ok(Partition { slot: p[1], start: p[2], size: p[3], type_guid: unpack_guid(p[4], p[5]) })
+        Ok(Partition {
+            slot: p[1],
+            start: p[2],
+            size: p[3],
+            type_guid: unpack_guid(p[4], p[5]),
+        })
     }
 
     /// Every partition the service knows.
@@ -193,7 +211,12 @@ impl PartTable {
     pub fn find(&self, type_guid: &[u8; 16], index: u32) -> Result<Partition, Errno> {
         let [g0, g1] = pack_guid(type_guid);
         let p = self.call(OP_FIND_PARTITION, [g0, g1, index as u64, 0, 0, 0])?;
-        Ok(Partition { slot: p[1], start: p[2], size: p[3], type_guid: *type_guid })
+        Ok(Partition {
+            slot: p[1],
+            start: p[2],
+            size: p[3],
+            type_guid: *type_guid,
+        })
     }
 
     /// Write an empty GPT to `disk` (opened with `disk_access()`).
@@ -203,8 +226,14 @@ impl PartTable {
 
     /// Add a partition of `type_guid`, `size_lba` sectors (0: the largest
     /// free gap); returns (starting_lba, size_lba).
-    pub fn add_partition(&self, disk: &Device, type_guid: &[u8; 16], size_lba: u64) -> Result<(u64, u64), Errno> {
+    pub fn add_partition(
+        &self,
+        disk: &Device,
+        type_guid: &[u8; 16],
+        size_lba: u64,
+    ) -> Result<(u64, u64), Errno> {
         let [g0, g1] = pack_guid(type_guid);
-        self.call_with_disk(OP_ADD_PARTITION, disk, [0, g0, g1, size_lba, 0, 0]).map(|p| (p[1], p[2]))
+        self.call_with_disk(OP_ADD_PARTITION, disk, [0, g0, g1, size_lba, 0, 0])
+            .map(|p| (p[1], p[2]))
     }
 }
